@@ -3,30 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GREEN API</title>
+    <title>GREEN API Interface</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 0 auto;
+            display: flex;
+            margin: 0;
             padding: 20px;
             background-color: #f5f5f5;
         }
-        .container {
-            background-color: white;
+        .input-section {
+            width: 40%;
             padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-right: 20px;
+        }
+        .output-section {
+            width: 55%;
+            padding: 20px;
+            background: white;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .input-field {
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
             width: 100%;
             padding: 8px;
-            margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .button {
+        button {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -35,16 +51,15 @@
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
-            margin: 4px 2px;
+            margin: 4px 0;
             cursor: pointer;
             border-radius: 4px;
             width: 100%;
         }
         .response-area {
             width: 100%;
-            height: 100px;
-            margin-top: 20px;
-            padding: 8px;
+            height: 300px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f9f9f9;
@@ -57,30 +72,65 @@
             font-size: 12px;
             color: #666;
         }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>GREEN API</h2>
+    <div class="input-section">
+        <div class="section-title">Параметры подключения</div>
         
-        <input type="text" id="idInstance" class="input-field" placeholder="idInstance">
-        <input type="text" id="apiTokenInstance" class="input-field" placeholder="ApiTokenInstance">
+        <div class="input-group">
+            <label for="idInstance">idInstance</label>
+            <input type="text" id="idInstance" placeholder="Введите idInstance">
+        </div>
         
-        <button class="button" onclick="callApi('getSettings')">getSettings</button>
-        <button class="button" onclick="callApi('getStateInstance')">getStateInstance</button>
+        <div class="input-group">
+            <label for="apiTokenInstance">ApiTokenInstance</label>
+            <input type="text" id="apiTokenInstance" placeholder="Введите ApiTokenInstance">
+        </div>
         
-        <input type="text" id="phoneNumber" class="input-field" placeholder="?????234567">
-        <input type="text" id="messageText" class="input-field" placeholder="hello Color!">
-        <button class="button" onclick="callApi('sendMessage')">sendMessage</button>
+        <div class="section-title">Методы API</div>
         
-        <input type="text" id="fileUrl" class="input-field" placeholder="https://my.site.com/mg/home.png">
-        <button class="button" onclick="callApi('sendFileByUrl')">sendFileByUrl</button>
+        <button onclick="callApi('getSettings')">getSettings</button>
+        <button onclick="callApi('getStateInstance')">getStateInstance</button>
         
+        <div class="section-title">Отправка сообщения</div>
+        
+        <div class="input-group">
+            <label for="messagePhone">Номер телефона (для sendMessage)</label>
+            <input type="text" id="messagePhone" placeholder="Номер телефона + @c.us (79991234567@c.us)">
+        </div>
+        
+        <div class="input-group">
+            <label for="messageText">Текст сообщения</label>
+            <input type="text" id="messageText" placeholder="Введите текст сообщения">
+        </div>
+        
+        <button onclick="callApi('sendMessage')">sendMessage</button>
+        
+        <div class="section-title">Отправка файла</div>
+        
+        <div class="input-group">
+            <label for="filePhone">Номер телефона</label>
+            <input type="text" id="filePhone" placeholder="Номер телефона + @c.us (79991234567@c.us)">
+        </div>
+        
+        <div class="input-group">
+            <label for="fileUrl">URL файла (для sendFileByUrl)</label>
+            <input type="text" id="fileUrl" placeholder="https://example.com/file.jpg">
+        </div>
+        
+        <button onclick="callApi('sendFileByUrl')">sendFileByUrl</button>
+    </div>
+    
+    <div class="output-section">
+        <div class="section-title">Ответ API</div>
         <textarea id="apiResponse" class="response-area" readonly></textarea>
-        
-        <div class="footer">
-            Owner: <span id="ownerField"></span><br>
-            GREEN API © 2025
         </div>
     </div>
 
@@ -100,7 +150,7 @@
                 let options = {};
                 
                 if (method === 'sendMessage') {
-                    const phoneNumber = document.getElementById('phoneNumber').value;
+                    const phoneNumber = document.getElementById('messagePhone').value;
                     const messageText = document.getElementById('messageText').value;
                     
                     if (!phoneNumber || !messageText) {
@@ -119,7 +169,7 @@
                         })
                     };
                 } else if (method === 'sendFileByUrl') {
-                    const phoneNumber = document.getElementById('phoneNumber').value;
+                    const phoneNumber = document.getElementById('filePhone').value;
                     const fileUrl = document.getElementById('fileUrl').value;
                     
                     if (!phoneNumber || !fileUrl) {
@@ -144,10 +194,6 @@
                 const data = await response.json();
                 responseField.value = JSON.stringify(data, null, 2);
                 
-                // Если это sendMessage, показываем idMessage в поле Owner
-                if (method === 'sendMessage' && data.idMessage) {
-                    document.getElementById('ownerField').textContent = `idMessage: "${data.idMessage}"`;
-                }
             } catch (error) {
                 responseField.value = `Ошибка: ${error.message}`;
             }
