@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green API Тестовое задание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px 0;
+            padding: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 20px;
+        }
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Green API Тестовое задание</h1>
+    
+    <div class="input-group">
+        <label for="idInstance">idInstance:</label>
+        <input type="text" id="idInstance" placeholder="Введите idInstance">
+    </div>
+    
+    <div class="input-group">
+        <label for="apiTokenInstance">ApiTokenInstance:</label>
+        <input type="text" id="apiTokenInstance" placeholder="Введите ApiTokenInstance">
+    </div>
+    
+    <div class="input-group">
+        <label for="phoneNumber">Номер телефона (для sendMessage):</label>
+        <input type="text" id="phoneNumber" placeholder="79991234567@c.us">
+    </div>
+    
+    <div class="input-group">
+        <label for="messageText">Текст сообщения:</label>
+        <input type="text" id="messageText" placeholder="Введите текст сообщения">
+    </div>
+    
+    <div class="input-group">
+        <label for="fileUrl">URL файла (для sendFileByUrl):</label>
+        <input type="text" id="fileUrl" placeholder="https://example.com/file.jpg">
+    </div>
+    
+    <button onclick="callApi('getSettings')">getSettings</button>
+    <button onclick="callApi('getStateInstance')">getStateInstance</button>
+    <button onclick="callApi('sendMessage')">sendMessage</button>
+    <button onclick="callApi('sendFileByUrl')">sendFileByUrl</button>
+    
+    <div class="response">
+        <label for="apiResponse">Ответ API:</label>
+        <textarea id="apiResponse" readonly></textarea>
+    </div>
+    
+    <script>
+        async function callApi(method) {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            const responseField = document.getElementById('apiResponse');
+            
+            if (!idInstance || !apiTokenInstance) {
+                responseField.value = "Ошибка: заполните idInstance и ApiTokenInstance";
+                return;
+            }
+            
+            try {
+                let url = `https://api.green-api.com/waInstance${idInstance}/${method}/${apiTokenInstance}`;
+                let options = {};
+                
+                if (method === 'sendMessage') {
+                    const phoneNumber = document.getElementById('phoneNumber').value;
+                    const messageText = document.getElementById('messageText').value;
+                    
+                    if (!phoneNumber || !messageText) {
+                        responseField.value = "Ошибка: заполните номер телефона и текст сообщения";
+                        return;
+                    }
+                    
+                    options = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chatId: `${phoneNumber}`,
+                            message: messageText
+                        })
+                    };
+                } else if (method === 'sendFileByUrl') {
+                    const phoneNumber = document.getElementById('phoneNumber').value;
+                    const fileUrl = document.getElementById('fileUrl').value;
+                    
+                    if (!phoneNumber || !fileUrl) {
+                        responseField.value = "Ошибка: заполните номер телефона и URL файла";
+                        return;
+                    }
+                    
+                    options = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chatId: `${phoneNumber}`,
+                            urlFile: fileUrl,
+                            fileName: fileUrl.split('/').pop()
+                        })
+                    };
+                }
+                
+                const response = await fetch(url, options);
+                const data = await response.json();
+                responseField.value = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseField.value = `Ошибка: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
